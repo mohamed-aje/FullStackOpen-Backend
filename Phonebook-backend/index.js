@@ -1,5 +1,7 @@
 const { response } = require("express");
 const express = require("express");
+const morgan = require("morgan");
+
 const app = express();
 app.use(express.json());
 let persons = [
@@ -24,6 +26,14 @@ let persons = [
     number: "39-23-6423122",
   },
 ];
+const cors = require("cors");
+app.use(cors());
+morgan.token("object", function (req) {
+  return `${JSON.stringify(req.body)}`;
+});
+
+app.use(morgan(":method :url :status :response-time :req[header] :object"));
+
 const generateId = () => {
   const maxId = persons.length > 0 ? Math.max(...persons.map((n) => n.id)) : 0;
   return maxId + 1;
@@ -87,7 +97,7 @@ app.get("/api/persons/:id", (req, res) => {
   }
 });
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
